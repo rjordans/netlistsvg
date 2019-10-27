@@ -1,4 +1,11 @@
 "use strict";
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var elkGraph_1 = require("./elkGraph");
 var Skin_1 = require("./Skin");
@@ -19,8 +26,8 @@ function drawModule(g, module) {
     removeDummyEdges(g);
     var lines = _.flatMap(g.edges, function (e) {
         var netId = elkGraph_1.ElkModel.wireNameLookup[e.id];
-        var netName = 'net_' + netId.slice(1, netId.length - 1);
-        return _.flatMap(e.sections, function (s) {
+        var netName = 'net_' + netId.slice(1, netId.length - 1).replace(/,/g, '_');
+        var net = _.flatMap(e.sections, function (s) {
             var startPoint = s.startPoint;
             s.bendPoints = s.bendPoints || [];
             var bends = s.bendPoints.map(function (b) {
@@ -55,6 +62,8 @@ function drawModule(g, module) {
                     }]];
             return bends.concat(line);
         });
+        var grouped = [__spreadArrays(['g', { class: netName }], net)];
+        return grouped;
     });
     var svgAttrs = Skin_1.default.skin[1];
     svgAttrs.width = g.width.toString();
@@ -67,8 +76,8 @@ function drawModule(g, module) {
             }
         },
     });
-    var elements = [styles].concat(nodes, lines);
-    var ret = ['svg', svgAttrs].concat(elements);
+    var elements = __spreadArrays([styles], nodes, lines);
+    var ret = __spreadArrays(['svg', svgAttrs], elements);
     return onml.s(ret);
 }
 exports.default = drawModule;
